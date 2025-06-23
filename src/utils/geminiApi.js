@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize the Gemini API
 // Note: In a production environment, you should use environment variables for API keys
-const API_KEY = 'YOUR_GEMINI_API_KEY'; // Replace with your actual API key or use environment variables
+const API_KEY = import.meta.VITE_GEMINI_API_KEY; // Replace with your actual API key or use environment variables
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Function to convert file to base64
