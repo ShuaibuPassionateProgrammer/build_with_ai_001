@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FiUpload, FiFile, FiImage, FiVideo, FiFileText } from 'react-icons/fi';
+import { FaFilePdf, FaFileImage, FaFileVideo, FaUpload } from 'react-icons/fa';
 
 const FileUpload = ({ onFileUpload }) => {
   const [file, setFile] = useState(null);
@@ -9,35 +9,39 @@ const FileUpload = ({ onFileUpload }) => {
     description: '',
     additionalInfo: ''
   });
-
+  
+  // Handle file drop
   const onDrop = useCallback(acceptedFiles => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0];
-      setFile(selectedFile);
       
-      // Try to extract creation date from file if available
-      try {
-        const date = new Date(selectedFile.lastModified);
-        setMetadata(prev => ({
-          ...prev,
-          creationDate: date.toISOString().split('T')[0]
-        }));
-      } catch (error) {
-        console.error('Error extracting date:', error);
+      // Check if file type is supported
+      const fileType = selectedFile.type.split('/')[0];
+      if (!['application', 'image', 'video'].includes(fileType)) {
+        alert('Only PDF, image, and video files are supported.');
+        return;
       }
+      
+      // For PDFs, check if it's actually a PDF
+      if (fileType === 'application' && !selectedFile.type.includes('pdf')) {
+        alert('Only PDF documents are supported for application type.');
+        return;
+      }
+      
+      setFile(selectedFile);
     }
   }, []);
-
+  
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
-      'video/*': ['.mp4', '.mov', '.avi']
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+      'video/*': ['.mp4', '.webm', '.ogg', '.mov']
     },
     maxFiles: 1
   });
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setMetadata(prev => ({
@@ -45,54 +49,58 @@ const FileUpload = ({ onFileUpload }) => {
       [name]: value
     }));
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (file) {
-      onFileUpload({ file, metadata });
+    if (!file) {
+      alert('Please upload a file first.');
+      return;
     }
+    
+    onFileUpload({ file, metadata });
   };
-
+  
+  // Get file icon based on type
   const getFileIcon = () => {
-    if (!file) return <FiUpload className="text-4xl" />;
+    if (!file) return <FaUpload className="text-4xl text-gray-400" />;
     
     const fileType = file.type.split('/')[0];
     switch (fileType) {
+      case 'application': // PDF
+        return <FaFilePdf className="text-4xl text-red-500" />;
       case 'image':
-        return <FiImage className="text-4xl text-blue-500" />;
+        return <FaFileImage className="text-4xl text-blue-500" />;
       case 'video':
-        return <FiVideo className="text-4xl text-purple-500" />;
-      case 'application':
-        return <FiFileText className="text-4xl text-red-500" />;
+        return <FaFileVideo className="text-4xl text-purple-500" />;
       default:
-        return <FiFile className="text-4xl text-gray-500" />;
+        return <FaUpload className="text-4xl text-gray-400" />;
     }
   };
-
+  
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">Upload Your File</h2>
+    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Upload File for AI Analysis</h2>
       
       <div 
         {...getRootProps()} 
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
+        className={`border-2 border-dashed rounded-lg p-8 mb-4 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
       >
         <input {...getInputProps()} />
-        <div className="flex flex-col items-center justify-center space-y-3">
+        <div className="flex flex-col items-center justify-center space-y-2">
           {getFileIcon()}
           {file ? (
-            <p className="text-gray-700 font-medium">{file.name}</p>
+            <p className="text-sm font-medium text-gray-700">{file.name}</p>
           ) : (
             <>
-              <p className="text-gray-700 font-medium">Drag & drop a file here, or click to select</p>
-              <p className="text-gray-500 text-sm">Supports PDF, images, and videos</p>
+              <p className="text-gray-700">Drag & drop a file here, or click to select</p>
+              <p className="text-xs text-gray-500">Supports PDF, images, and videos</p>
             </>
           )}
         </div>
       </div>
-
+      
       {file && (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="creationDate" className="block text-sm font-medium text-gray-700 mb-1">
               Creation Date
@@ -104,37 +112,36 @@ const FileUpload = ({ onFileUpload }) => {
               value={metadata.creationDate}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
           
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              Content Description
             </label>
             <textarea
               id="description"
               name="description"
               value={metadata.description}
               onChange={handleInputChange}
-              rows="3"
-              placeholder={`Describe what's in this ${file.type.split('/')[0]}`}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={`Describe what's in this ${file.type.split('/')[0]}...`}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
               required
             />
           </div>
           
           <div>
             <label htmlFor="additionalInfo" className="block text-sm font-medium text-gray-700 mb-1">
-              Additional Information
+              Additional Information (optional)
             </label>
             <textarea
               id="additionalInfo"
               name="additionalInfo"
               value={metadata.additionalInfo}
               onChange={handleInputChange}
-              rows="2"
-              placeholder="Any other relevant details"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Any other details you'd like the AI to know..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
             />
           </div>
           
