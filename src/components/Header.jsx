@@ -2,16 +2,28 @@ import React from 'react';
 
 const Header = () => {
   return (
-    <header className="bg-blue-700 text-white shadow-md">
-      <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">AI File Analyzer</h1>
+    <header className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white shadow-lg">
+      <div className="container mx-auto py-5 px-6 flex justify-between items-center">
+        <h1 className="text-3xl font-extrabold text-yellow-400 tracking-wide">
+          AI File Analyzer
+        </h1>
         <nav>
-          <ul className="flex space-x-4">
+          <ul className="flex space-x-6">
             <li>
-              <a href="#" className="hover:text-blue-200 transition-colors">Home</a>
+              <a 
+                href="#" 
+                className="hover:text-yellow-300 transition-colors duration-300 text-lg font-semibold"
+              >
+                Home
+              </a>
             </li>
             <li>
-              <a href="#" className="hover:text-blue-200 transition-colors">About</a>
+              <a 
+                href="#" 
+                className="hover:text-yellow-300 transition-colors duration-300 text-lg font-semibold"
+              >
+                About
+              </a>
             </li>
           </ul>
         </nav>
