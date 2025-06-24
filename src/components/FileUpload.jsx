@@ -28,7 +28,18 @@ const FileUpload = ({ onFileUpload }) => {
         return;
       }
       
+      // Set the file
       setFile(selectedFile);
+      
+      // Get the file's last modified date and format it for the date input (YYYY-MM-DD)
+      const lastModified = new Date(selectedFile.lastModified);
+      const formattedDate = lastModified.toISOString().split('T')[0];
+      
+      // Update metadata with the file's last modified date
+      setMetadata(prev => ({
+        ...prev,
+        creationDate: formattedDate
+      }));
     }
   }, []);
   
