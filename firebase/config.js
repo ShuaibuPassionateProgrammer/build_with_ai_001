@@ -1,15 +1,16 @@
 // Import the functions you need from the SDKs you need
+// config.js
 import { initializeApp } from "firebase/app";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 
-// Your web app's Firebase configuration
+// Accessing environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAH7MR34OLZQL4h1rCE34pcSZ8ZOxGTTY0",
-  authDomain: "build-with-ai-001.firebaseapp.com",
-  projectId: "build-with-ai-001",
-  storageBucket: "build-with-ai-001.firebasestorage.app",
-  messagingSenderId: "302895286081",
-  appId: "1:302895286081:web:1f333b88e96d72dc0f43c0"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
